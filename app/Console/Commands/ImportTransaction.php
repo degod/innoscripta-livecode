@@ -12,7 +12,7 @@ class ImportTransaction extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-transaction';
+    protected $signature = 'app:import-transaction {--page=1} {--limit=100}';
 
     /**
      * The console command description.
@@ -26,7 +26,12 @@ class ImportTransaction extends Command
      */
     public function handle()
     {
+        $page = $this->option('page') ?? 1;   // default to 1
+        $limit = $this->option('limit') ?? 100; // default to 100
+
+        $this->info("Importing transactions (page: $page, limit: $limit)...");
+
         $fetchTransactionService = new FetchTransactionService();
-        $fetchTransactionService->doFetch();
+        $fetchTransactionService->doFetch($page, $limit);
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Exceptions\InvalidTransactionException;
+use App\Jobs\LogFinancialWarning;
 use App\Models\Invoice;
-use Illuminate\Support\Facades\Log;
 
 class InvoiceService
 {
@@ -36,7 +36,7 @@ class InvoiceService
                     ]);
                 }
             } else {
-                Log::channel('financial_warnings')->warning('No transactions found for invoice ID: ' . $data['id']);
+                LogFinancialWarning::dispatch('No transactions found for invoice ID: ' . $data['id']);
             }
         } else {
             throw new InvalidTransactionException($data['id']);

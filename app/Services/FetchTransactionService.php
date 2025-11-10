@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
+
 class FetchTransactionService
 {
     public $service_url;
@@ -16,7 +18,7 @@ class FetchTransactionService
         $this->api_token = env('TRANX_API_TOKEN');
     }
 
-    public function doFetch()
+    public function doFetch($page = 1, $limit = 100)
     {
         $ch = curl_init();
         $headers = array(
@@ -25,7 +27,7 @@ class FetchTransactionService
             'Authorization: Token ' . $this->api_token,
 
         );
-        curl_setopt($ch, CURLOPT_URL, $this->service_url . '?include[]=transactions&page=1&limit=10');
+        curl_setopt($ch, CURLOPT_URL, $this->service_url . '?include[]=transactions&page=' . $page . '&limit=' . $limit);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
@@ -49,7 +51,7 @@ class FetchTransactionService
                 $invoiceService->createInvoiceWithTransactions($invoiceData);
             }
         } else {
-            // \Log::error('Invalid response structure: ' . $response);
+            Log::error('Invalid response structure: ' . $response);
         }
     }
 }
