@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\Transaction;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 
 class TransactionRepository implements TransactionRepositoryInterface
 {
@@ -11,42 +13,46 @@ class TransactionRepository implements TransactionRepositoryInterface
      */
     public function __construct(private Transaction $transactionModel) {}
 
-    public function filter(array $filters, int $perPage, int $page, int $limit): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function filter(array $filters, int $perPage, int $page, int $limit): LengthAwarePaginator
     {
-        $query = $this->transactionModel->newQuery();
+        $cacheKey = 'transactions:' . md5(json_encode($filters) . ":page=$page:perPage=$perPage:limit=$limit");
 
-        $query->when($filters['date_from'] ?? null, function ($q, $from) {
-            $q->whereDate('transaction_date', '>=', $from);
-        })->when($filters['date_to'] ?? null, function ($q, $to) {
-            $q->whereDate('transaction_date', '<=', $to);
+        return Cache::remember($cacheKey, 300, function () use ($filters, $perPage, $page, $limit) {
+            $query = $this->transactionModel->newQuery();
+
+            $query->when($filters['date_from'] ?? null, function ($q, $from) {
+                $q->whereDate('transaction_date', '>=', $from);
+            })->when($filters['date_to'] ?? null, function ($q, $to) {
+                $q->whereDate('transaction_date', '<=', $to);
+            });
+
+            if (! $limit) {
+                return $query->paginate($perPage, ['*'], 'page', $page);
+            }
+
+            $baseQuery = clone $query;
+            $totalMatching = (int) $baseQuery->toBase()->getCountForPagination();
+            $total = min($totalMatching, $limit);
+
+            $offset = ($page - 1) * $perPage;
+            if ($offset >= $limit) {
+                $items = collect();
+            } else {
+                $take = min($perPage, $limit - $offset);
+                $items = $query->offset($offset)->limit($take)->get();
+            }
+
+            return new LengthAwarePaginator(
+                $items,
+                $total,
+                $perPage,
+                $page,
+                [
+                    'path'  => request()->url(),
+                    'query' => request()->query(),
+                ]
+            );
         });
-
-        if (! $limit) {
-            return $query->paginate($perPage, ['*'], 'page', $page);
-        }
-
-        $baseQuery = clone $query;
-        $totalMatching = (int) $baseQuery->toBase()->getCountForPagination();
-        $total = min($totalMatching, $limit);
-
-        $offset = ($page - 1) * $perPage;
-        if ($offset >= $limit) {
-            $items = collect();
-        } else {
-            $take = min($perPage, $limit - $offset);
-            $items = $query->offset($offset)->limit($take)->get();
-        }
-
-        return new \Illuminate\Pagination\LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
-            [
-                'path'  => request()->url(),
-                'query' => request()->query(),
-            ]
-        );
     }
 
     public function create(array $data): Transaction
