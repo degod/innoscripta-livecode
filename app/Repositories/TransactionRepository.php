@@ -65,13 +65,13 @@ class TransactionRepository implements TransactionRepositoryInterface
         return $this->transactionModel->find($id);
     }
 
-    public function update(int $id, array $data): bool
+    public function update(int $id, array $data): Transaction|null
     {
         $transaction = $this->findById($id);
         if ($transaction) {
-            return $transaction->update($data);
+            return $transaction->update($data) ? $transaction : null;
         }
-        return false;
+        return $transaction;
     }
 
     public function delete(int $id): bool

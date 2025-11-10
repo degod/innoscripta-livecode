@@ -13,7 +13,7 @@ interface TransactionRepositoryInterface
 
     public function findById(int $id): ?Transaction;
 
-    public function update(int $id, array $data): bool;
+    public function update(int $id, array $data): Transaction|null;
 
     public function delete(int $id): bool;
 }

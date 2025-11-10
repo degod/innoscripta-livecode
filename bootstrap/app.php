@@ -45,7 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return $responseService->error(
                 Response::HTTP_INTERNAL_SERVER_ERROR,
-                'Something went wrong on the server.'
+                'Something went wrong on the server. ' . $e->getMessage()
             );
         });
     })->create();

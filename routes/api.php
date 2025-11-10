@@ -8,5 +8,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/transactions', FetchController::class)->name('transactions.fetch');
 Route::post('/transaction/create', CreateController::class)->name('transactions.create');
-Route::put('/transaction/update', UpdateController::class)->name('transactions.update');
-Route::delete('/transaction/delete', DeleteController::class)->name('transactions.delete');
+Route::put('/transaction/update/{id}', UpdateController::class)->name('transactions.update');
+Route::delete('/transaction/delete/{id}', DeleteController::class)->name('transactions.delete');

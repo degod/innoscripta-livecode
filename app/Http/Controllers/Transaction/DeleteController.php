@@ -11,9 +11,9 @@ class DeleteController extends Controller
 {
     public function __construct(private TransactionRepositoryInterface $transactionRepository, private ResponseService $responseService) {}
 
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, int $id)
     {
-        $this->transactionRepository->delete($request->route('id'));
+        $this->transactionRepository->delete($id);
 
         return $this->responseService->success(200, 'Transaction deleted successfully');
     }

@@ -23,7 +23,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             'amount' => ['required', 'numeric', 'min:0'],
-            'invoice_id' => ['required', 'in:pending,completed,failed'],
+            'invoice_id' => ['required'],
             'description' => ['nullable', 'string', 'max:255'],
             'currency' => ['required', 'string', 'max:255'],
             'transaction_date' => ['required', 'string', 'max:255'],
