@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\InvalidTransactionException;
 use App\Models\Invoice;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceService
 {
@@ -34,10 +35,11 @@ class InvoiceService
                         'customer_name' => $data['customer_name'],
                     ]);
                 }
+            } else {
+                Log::channel('financial_warnings')->warning('No transactions found for invoice ID: ' . $data['id']);
             }
         } else {
-            // InvalidTransactionException::report('Customer name is missing in the transaction data.');
-            // \Log::error('Customer name is missing in the transaction data:: ' . $data['id']);
+            throw new InvalidTransactionException($data['id']);
         }
     }
 }
