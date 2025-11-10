@@ -9,6 +9,8 @@ class InvoiceService
 {
     public function createInvoiceWithTransactions(array $data)
     {
+        $transactionService = new TransactionService();
+
         if ($data['customer_name']) {
             Invoice::create([
                 'invoice_number' => $data['invoice_number'],
@@ -18,6 +20,9 @@ class InvoiceService
                 'reduction_type' => $data['reduction_type'] ?? null,
                 'customer_name' => $data['customer_name'],
             ]);
+
+            if ($data['transactions']) {
+            }
         } else {
             // InvalidTransactionException::report('Customer name is missing in the transaction data.');
             \Log::error('Customer name is missing in the transaction data:: ' . $data['id']);
