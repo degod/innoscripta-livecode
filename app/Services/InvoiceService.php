@@ -21,11 +21,23 @@ class InvoiceService
                 'customer_name' => $data['customer_name'],
             ]);
 
-            if ($data['transactions']) {
+            if (isset($data['transactions'])) {
+                foreach ($data['transactions'] as $transactionData) {
+                    $transactionService->createTransaction([
+                        'invoice_id' => $data['id'],
+                        'amount' => $transactionData['amount'],
+                        'currency' => $transactionData['currency'],
+                        'transaction_date' => $transactionData['transaction_date'],
+                        'type' => $transactionData['type'],
+                        'reference_code' => $transactionData['reference_code'] ?? null,
+                        'details' => $transactionData['details'] ?? null,
+                        'customer_name' => $data['customer_name'],
+                    ]);
+                }
             }
         } else {
             // InvalidTransactionException::report('Customer name is missing in the transaction data.');
-            \Log::error('Customer name is missing in the transaction data:: ' . $data['id']);
+            // \Log::error('Customer name is missing in the transaction data:: ' . $data['id']);
         }
     }
 }

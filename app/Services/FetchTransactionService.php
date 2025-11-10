@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Invoice;
-
 class FetchTransactionService
 {
     public $service_url;
@@ -51,7 +49,7 @@ class FetchTransactionService
                 $invoiceService->createInvoiceWithTransactions($invoiceData);
             }
         } else {
-            \Log::error('Invalid response structure: ' . $response);
+            // \Log::error('Invalid response structure: ' . $response);
         }
     }
 }
